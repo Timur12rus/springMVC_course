@@ -34,8 +34,8 @@ public class PeopleController {
 
     @GetMapping("/new")
     public String newPerson(@ModelAttribute("person") Person person) {
-//    public String newPerson(Model model) {                    // можно сделать так
-//    model.addAttribute("person", new Person());               // можно сделать так
+//    public String newPerson(Model model) {                                // можно сделать так
+//    model.addAttribute("person", new Person());                           // можно сделать так
         return "people/new";
     }
 
@@ -55,6 +55,11 @@ public class PeopleController {
     public String update(@ModelAttribute("person") Person person, @PathVariable("id") int id) {
         personDAO.update(id, person);
         return "redirect:/people";
+    }
 
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable("id") int id) {
+        personDAO.delete(id);
+        return "redirect:/people";
     }
 }

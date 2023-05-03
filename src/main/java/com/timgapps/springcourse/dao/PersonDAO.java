@@ -3,6 +3,7 @@ package com.timgapps.springcourse.dao;
 import com.timgapps.springcourse.models.Person;
 import org.springframework.stereotype.Component;
 
+import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,30 +37,46 @@ public class PersonDAO {
         try {
             Statement statement = connection.createStatement(); // тот объект, который содержит в себе запрос к базе данных
             String SQL = "SELECT * FROM Person";
-            ResultSet resultSet = statement.executeQuery(SQL);    // передаем наш SQL запрос, в этом объекте лежат наши строки
+            ResultSet resultSet = statement.executeQuery(SQL); // передаем наш SQL запрос, в этом объекте лежат наши строки
+            // executeQuery() выполняет запрос к базе данных не изменяя данные в ней, получает данные
 
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 Person person = new Person();
 
-                person.setId("id");
-                person.setName(resultSet.getString());
-                person.setName(resultSet.getString());
-                person.setName(resultSet.getString());
+                person.setId(resultSet.getInt("id"));
+                person.setName(resultSet.getString("name"));
+                person.setEmail(resultSet.getString("email"));
+                person.setAge(resultSet.getInt("age"));
 
+                people.add(person);
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+
         return people;
     }
 
     public Person show(int id) {
 //        return people.stream().filter(person -> person.getId() == id).findAny().orElse(null);
+        return null;
     }
 
     public void save(Person person) {
-        person.setId(++PEOPLE_COUNT);
-        people.add(person);
+//        person.setId(++PEOPLE_COUNT);
+//        people.add(person);
+        try {
+            Statement statement = connection.createStatement();
+            // INSERT INTO Person VALUES(1, 'Tom', 18, 'email@mail.ru')
+            String SQL = "INSERT INTO Person VALUES(" + 1 + ",'" + person.getName() + "',"  +
+                    person.getAge() + ",'" + person.getEmail() + "')";
+            statement.executeUpdate(SQL);
+            // executeUpdate() выполняет запрос к базе данных изменяя данные в ней (отличие от executeQuery)
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void update(int id, Person updatedPerson) {

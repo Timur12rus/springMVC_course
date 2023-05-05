@@ -2,6 +2,7 @@ package com.timgapps.springcourse.dao;
 
 import com.timgapps.springcourse.models.Person;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -50,5 +51,65 @@ public class PersonDAO {
 
     public void delete(int id) {
         jdbcTemplate.update("DELETE FROM Person WHERE id=?", id);
+    }
+
+    //////////////////////////////////////////
+    // Тестируем производительность пакетной вставки
+    ////////////////////////////////////////////////////
+
+    // метод будет вставлять в БД 1000 людей с помощью обычнго INSERT
+    public void testMultipleUpdate() {
+        List<Person> people = create1000People();
+
+        long before = System.currentTimeMillis(); // время до вставки данных в БД
+
+        for (Person person : people) {
+            jdbcTemplate.update("INSERT INTO Person VALUES(?, ?, ?, ?)",
+                    person.getId(), person.getName(), person.getAge(), person.getEmail());
+        }
+
+        long after = System.currentTimeMillis();  // время после вставки данных в БД
+
+        System.out.println("Time: " + (after - before));
+    }
+
+    // метод будет вставлять в БД 1000 людей одним пакетом
+    public void testBatchUpdate() {
+        List<Person> people = create1000People();
+
+        long before = System.currentTimeMillis(); // время до вставки данных в БД
+
+        // вставка с момощью специального метода
+        jdbcTemplate.batchUpdate("INSERT INTO Person VALUES(?, ?, ?, ?)",
+                // анонимный класс с двумя методами, которые мы должны реализовать
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    // здесь передаем все значения, котрые попадут в пакет для передачи данных в БД
+                    public void setValues(PreparedStatement preparedStatement, int i) throws SQLException {
+                        preparedStatement.setInt(1, people.get(i).getId());
+                        preparedStatement.setString(2, people.get(i).getName());
+                        preparedStatement.setInt(3, people.get(i).getAge());
+                        preparedStatement.setString(4, people.get(i).getEmail());
+                    }
+
+                    @Override
+                    // здесь должны вернуть размер нашего пакета
+                    public int getBatchSize() {
+                        return people.size();
+                    }
+                });
+
+        long after = System.currentTimeMillis();  // время после вставки данных в БД
+
+        System.out.println("Time: " + (after - before));
+    }
+
+    private List<Person> create1000People() {
+        List<Person> people = new ArrayList<>();
+
+        for (int i = 0; i < 1000; i++) {
+            people.add(new Person(i, "Name" + i, 30, "test" + i + "@mail.ru"));
+        }
+        return people;
     }
 }

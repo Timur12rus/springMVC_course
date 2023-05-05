@@ -1,4 +1,4 @@
-driver=
-url=
-username=
-password=
+db.driver=
+db.url=
+db.username=
+db.password=

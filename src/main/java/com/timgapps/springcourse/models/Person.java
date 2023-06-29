@@ -2,6 +2,7 @@ package com.timgapps.springcourse.models;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.util.List;
 
 @Entity
 @Table(name = "Person")
@@ -25,12 +26,14 @@ public class Person {
     @Email
     private String email;
 
+    @OneToMany(mappedBy = "owner")
+    private List<Item> items;
+
     public Person() {
 
     }
 
-    public Person(int id, String name, int age, String email) {
-        this.id = id;
+    public Person(String name, int age, String email) {
         this.name = name;
         this.age = age;
     }

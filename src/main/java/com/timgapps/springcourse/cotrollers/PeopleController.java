@@ -30,7 +30,7 @@ public class PeopleController {
         model.addAttribute("people", peopleService.findAll());
 
         itemService.findByItemName("Airpods");
-        itemService.findByOwner(peopleService.findAll().get(0));
+        itemService.findByOwner(peopleService.findAll().get(1));
         peopleService.test();
 
         return "people/index";

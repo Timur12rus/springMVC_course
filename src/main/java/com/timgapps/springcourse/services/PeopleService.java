@@ -1,11 +1,13 @@
 package com.timgapps.springcourse.services;
 
+import com.timgapps.springcourse.models.Mood;
 import com.timgapps.springcourse.models.Person;
 import com.timgapps.springcourse.repositories.PeopleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,9 +33,11 @@ public class PeopleService {
         return foundPerson.orElse(null);
     }
 
-
     @Transactional
     public void save(Person person) {
+        person.setCreatedAt(new Date());
+        person.setMood(Mood.CALM);      // автоматически этот enum будет переведен в 4
+
         peopleRepository.save(person);
     }
 
